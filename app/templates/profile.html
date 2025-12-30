@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3 class="fw-bold mb-4">👤 Profil Saya</h3>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-bold">User ID:</label>
+                    <input type="text" class="form-control" value="{{ user.id_user }}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-bold">Username:</label>
+                    <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-bold">Role:</label>
+                    <input type="text" class="form-control" value="{{ user.role|upper }}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-bold">Terdaftar Sejak:</label>
+                    <input type="text" class="form-control" value="{{ user.created_at }}" readonly>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">ℹ️ Informasi Akun</h5>
+                    <p class="mb-0">
+                        Anda login sebagai <strong>{{ user.role }}</strong>. 
+                        {% if user.role == 'admin' %}
+                        Anda memiliki akses penuh ke semua fitur sistem.
+                        {% else %}
+                        Anda memiliki akses ke fitur operasional zoo.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Catatan:</strong> Jika Anda ingin mengubah password atau informasi akun, 
+                    hubungi administrator sistem.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Form Tambah/Edit Fasilitas -->
+<div class="card shadow-sm border-0 mb-4 collapse {{ 'show' if fasilitas_to_edit else '' }}" id="formFasilitas">
+    <div class="card-body p-4">
+        
+        <h3 class="fw-bold mb-4">{{ '✏️ Edit Fasilitas' if fasilitas_to_edit else '➕ Tambah Fasilitas' }}</h3>
+
+        <form method="POST" action="{{ url_for('web.fasilitas') }}">
+            <input type="hidden" name="form_mode" value="{{ 'update' if fasilitas_to_edit else 'add' }}">
+            
+            {% if fasilitas_to_edit %}
+            <input type="hidden" name="id_fasilitas" value="{{ fasilitas_to_edit.id_fasilitas }}">
+            {% endif %}
+            
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Nama Fasilitas</label>
+                    <input type="text" name="nama_fasilitas" class="form-control" required
+                           value="{{ fasilitas_to_edit.nama_fasilitas if fasilitas_to_edit else '' }}"
+                           placeholder="Contoh: Toilet, Klinik Hewan">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Lokasi</label>
+                    <input type="text" name="lokasi" class="form-control"
+                           value="{{ fasilitas_to_edit.lokasi if fasilitas_to_edit else '' }}"
+                           placeholder="Contoh: Zona A, Pintu Masuk">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Kondisi</label>
+                    <select name="kondisi" class="form-select" required>
+                        <option value="Baik" {% if fasilitas_to_edit and fasilitas_to_edit.kondisi == 'Baik' %}selected{% endif %}>Baik</option>
+                        <option value="Perlu Perbaikan" {% if fasilitas_to_edit and fasilitas_to_edit.kondisi == 'Perlu Perbaikan' %}selected{% endif %}>Perlu Perbaikan</option>
+                        <option value="Rusak" {% if fasilitas_to_edit and fasilitas_to_edit.kondisi == 'Rusak' %}selected{% endif %}>Rusak</option>
+                        <option value="Dalam Perbaikan" {% if fasilitas_to_edit and fasilitas_to_edit.kondisi == 'Dalam Perbaikan' %}selected{% endif %}>Dalam Perbaikan</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Jadwal Perawatan</label>
+                    <input type="date" name="jadwal_perawatan" class="form-control"
+                           value="{{ fasilitas_to_edit.jadwal_perawatan if fasilitas_to_edit else '' }}">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Penanggung Jawab</label>
+                    <select name="id_user" class="form-select">
+                        <option value="">-- Pilih Petugas --</option>
+                        {% for u in users %}
+                        <option value="{{ u.id_user }}"
+                            {% if fasilitas_to_edit and fasilitas_to_edit.id_user == u.id_user %} selected {% endif %}>
+                            {{ u.nama_lengkap or u.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    {% if fasilitas_to_edit %}
+                        <button type="submit" class="btn btn-success">💾 Update</button>
+                        <a href="{{ url_for('web.fasilitas') }}" class="btn btn-secondary">❌ Batal</a>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">💾 Simpan</button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Header & Button Tambah -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">🏢 Daftar Fasilitas</h3>
+    
+    {% if not fasilitas_to_edit %}
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formFasilitas">
+        ➕ Tambah Fasilitas
+    </button>
+    {% endif %}
+</div>
+
+<!-- Tabel Daftar Fasilitas -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th>No</th>
+                        <th>Nama Fasilitas</th>
+                        <th>Lokasi</th>
+                        <th>Kondisi</th>
+                        <th>Jadwal Perawatan</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in fasilitas %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td>{{ f.nama_fasilitas }}</td>
+                        <td>{{ f.lokasi or '-' }}</td>
+                        <td class="text-center">
+                            <span class="badge 
+                                {% if f.kondisi == 'Baik' %}bg-success
+                                {% elif f.kondisi == 'Perlu Perbaikan' %}bg-warning
+                                {% elif f.kondisi == 'Rusak' %}bg-danger
+                                {% else %}bg-info{% endif %}">
+                                {{ f.kondisi }}
+                            </span>
+                        </td>
+                        <td class="text-center">{{ f.jadwal_perawatan or '-' }}</td>
+                        <td>{{ f.nama_lengkap or f.username or '-' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('web.fasilitas', edit=f.id_fasilitas) }}" class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+                            <a href="{{ url_for('web.delete_fasilitas', id_fasilitas=f.id_fasilitas) }}" 
+                               onclick="return confirm('Hapus data fasilitas ini?')" 
+                               class="btn btn-danger btn-sm">
+                                Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Belum ada data fasilitas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
