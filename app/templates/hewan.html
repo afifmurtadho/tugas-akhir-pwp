@@ -145,8 +145,8 @@
                         </td>
                         <td class="text-center">{{ h.tanggal_masuk or '-' }}</td>
                         <td>{{ h.jenis_pakan or '-' }}</td>
-                        <td>{{ h.jenis_habitat or '-' }} ({{ h.lokasi_zona or '-' }})</td>
-                        <td>{{ h.nama_lengkap or h.username or '-' }}</td>
+                        <td>{{ h.kandang.jenis_habitat if h.kandang else '-' }} ({{ h.kandang.lokasi_zona if h.kandang else '-' }})</td>
+                        <td>{{ h.user.nama_lengkap if h.user else h.username or '-' }}</td>
                         <td class="text-center">
                             <a href="{{ url_for('web.hewan', edit=h.id_hewan) }}" class="btn btn-warning btn-sm">
                                 Edit

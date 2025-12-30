@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.mysql import INTEGER
 from app.extensions import db
 
 class Kandang(db.Model):
@@ -13,8 +12,20 @@ class Kandang(db.Model):
     lokasi_zona = db.Column(db.String(100))
 
     id_user = db.Column(
-        INTEGER(unsigned=True),
+        db.Integer,
         db.ForeignKey('users.id_user'),
         nullable=True
     )
+
+    user = db.relationship('User', backref='kandangs')
+
+    def to_dict(self):
+        return {
+            'id_kandang': self.id_kandang,
+            'jenis_habitat': self.jenis_habitat,
+            'kapasitas': self.kapasitas,
+            'suhu_ideal': self.suhu_ideal,
+            'lokasi_zona': self.lokasi_zona,
+            'id_user': self.id_user
+        }
 

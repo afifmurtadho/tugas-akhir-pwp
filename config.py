@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv('.flaskenv')
 
 class Config:
     SECRET_KEY = "zoo-management-secret-key-2025"

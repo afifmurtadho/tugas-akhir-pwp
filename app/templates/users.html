@@ -57,34 +57,6 @@
                            placeholder="Masukkan nama lengkap">
                 </div>
                 
-                <div class="col-md-6">
-                    <label class="form-label">Jabatan</label>
-                    <input type="text" name="jabatan" class="form-control"
-                           value="{{ user_to_edit.jabatan if user_to_edit else '' }}"
-                           placeholder="Keeper, Veterinarian, dll">
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Area Tugas</label>
-                    <input type="text" name="area_tugas" class="form-control"
-                           value="{{ user_to_edit.area_tugas if user_to_edit else '' }}"
-                           placeholder="Zona Mamalia, Reptil, dll">
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Jadwal Shift</label>
-                    <input type="text" name="jadwal_shift" class="form-control"
-                           value="{{ user_to_edit.jadwal_shift if user_to_edit else '' }}"
-                           placeholder="Pagi (07:00-15:00)">
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Kontak</label>
-                    <input type="text" name="kontak" class="form-control"
-                           value="{{ user_to_edit.kontak if user_to_edit else '' }}"
-                           placeholder="08123456789 atau email">
-                </div>
-                
                 <div class="col-12">
                     {% if user_to_edit %}
                         <button type="submit" class="btn btn-success">Update</button>
@@ -126,9 +98,6 @@
                         <th>Username</th>
                         <th>Nama Lengkap</th>
                         <th>Role</th>
-                        <th>Jabatan</th>
-                        <th>Area Tugas</th>
-                        <th>Kontak</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -143,9 +112,6 @@
                                 {{ u.role|upper }}
                             </span>
                         </td>
-                        <td>{{ u.jabatan or '-' }}</td>
-                        <td>{{ u.area_tugas or '-' }}</td>
-                        <td>{{ u.kontak or '-' }}</td>
                         <td class="text-center">
                             <a href="{{ url_for('web.users', edit=u.id_user) }}" class="btn btn-warning btn-sm">
                                 Edit
@@ -165,7 +131,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted">Belum ada data user</td>
+                        <td colspan="5" class="text-center text-muted">Belum ada data user</td>
                     </tr>
                     {% endfor %}
                 </tbody>

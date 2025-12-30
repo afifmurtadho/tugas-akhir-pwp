@@ -1,7 +1,7 @@
 from flask import request, jsonify, redirect, url_for, session
 from app.model.user import User
 from werkzeug.security import check_password_hash
-from app import db
+from app.extensions import db
 
 def login():
     data = request.get_json()
@@ -46,7 +46,7 @@ def login_web():
     return redirect(url_for('web.dashboard'))
 
 
-def login_api(request):
+def login_api():
     data = request.json
 
     user = User.query.filter_by(username=data.get('username')).first()

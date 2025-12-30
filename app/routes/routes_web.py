@@ -1,14 +1,16 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.middleware.auth import login_required
-from app.controller.AuthController import login_web
-from app.extensions import db
-from app.model.user import User 
+from app.controller.DashboardController import dashboard_data 
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.extensions import db
+from app.model.user import User
 from app.model.hewan import Hewan 
 from app.model.kandang import Kandang 
 from app.model.inventaris import Inventaris
 from app.model.event import Event
+from datetime import datetime
 from app.model.fasilitas import Fasilitas
+from sqlalchemy.orm import joinedload
 
 web = Blueprint('web', __name__)
 
@@ -41,28 +43,39 @@ def register():
         nama_lengkap = request.form.get('nama_lengkap')
         role = request.form.get('role')
 
+        # Validasi input
+        if not username or not password or not nama_lengkap or not role:
+            flash('Semua field harus diisi!', 'danger')
+            return redirect(url_for('web.register'))
+
         # Cek duplikasi
         if User.query.filter_by(username=username).first():
             flash('Username sudah ada!', 'warning')
             return redirect(url_for('web.register'))
 
-        new_user = User(
-            username=username,
-            password=generate_password_hash(password),
-            nama_lengkap=nama_lengkap,
-            role=role
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Akun berhasil dibuat!', 'success')
-        return redirect(url_for('web.login'))
+        try:
+            new_user = User(
+                username=username,
+                password=generate_password_hash(password),
+                nama_lengkap=nama_lengkap,
+                role=role
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Akun berhasil dibuat!', 'success')
+            return redirect(url_for('web.login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+            return redirect(url_for('web.register'))
     return render_template('register.html')
 
 
 @web.route('/dashboard')
 def dashboard():
     if 'user_id' not in session: return redirect(url_for('web.login'))
-    return render_template('dashboard.html', data=[])
+    data = dashboard_data()
+    return render_template('dashboard.html', **data)
 
 @web.route('/home')
 def home():
@@ -117,13 +130,7 @@ def hewan():
         
         return redirect(url_for('web.hewan'))
 
-    daftar_hewan = db.session.query(
-        Hewan.id_hewan, Hewan.nama_hewan, Hewan.spesies, Hewan.asal, 
-        Hewan.status_konservasi, Hewan.tanggal_masuk, Hewan.jenis_pakan,
-        Kandang.jenis_habitat, Kandang.lokasi_zona,
-        User.nama_lengkap, User.username
-    ).outerjoin(Kandang, Hewan.id_kandang == Kandang.id_kandang)\
-     .outerjoin(User, Hewan.id_user == User.id_user).all()
+    daftar_hewan = Hewan.query.options(joinedload(Hewan.kandang), joinedload(Hewan.user)).all()
 
     # 2. Cek apakah sedang mode Edit (ada parameter ?edit=ID di URL)
     edit_id = request.args.get('edit')
@@ -325,9 +332,10 @@ def event():
         
         nama_event = request.form.get('nama_event')
         jenis_event = request.form.get('jenis_event')
-        tanggal_event = request.form.get('tanggal_event')
+        tanggal_event_str = request.form.get('tanggal_event')
+        tanggal_event = datetime.strptime(tanggal_event_str, '%Y-%m-%d').date() if tanggal_event_str else None
         lokasi_event = request.form.get('lokasi_event')
-        id_petugas = request.form.get('id_petugas')
+        id_user = request.form.get('id_petugas')
 
         if mode == 'add':
             new_event = Event(
@@ -335,7 +343,7 @@ def event():
                 jenis_event=jenis_event,
                 tanggal_event=tanggal_event,
                 lokasi_event=lokasi_event,
-                id_petugas=id_petugas if id_petugas else None
+                id_user=id_user if id_user else None
             )
             db.session.add(new_event)
             db.session.commit()
@@ -349,7 +357,7 @@ def event():
                 ev.jenis_event = jenis_event
                 ev.tanggal_event = tanggal_event
                 ev.lokasi_event = lokasi_event
-                ev.id_petugas = id_petugas if id_petugas else None
+                ev.id_user = id_user if id_user else None
                 db.session.commit()
                 flash('Data event berhasil diperbarui!', 'success')
         
@@ -359,11 +367,7 @@ def event():
     
     # Ambil data event dengan join ke User untuk mendapatkan nama penanggung jawab
     # Kita gunakan alias nama_petugas agar sesuai dengan {{ e.nama_petugas }} di HTML
-    daftar_event = db.session.query(
-        Event.id_event, Event.nama_event, Event.jenis_event, 
-        Event.tanggal_event, Event.lokasi_event,
-        User.nama_lengkap.label('nama_petugas') 
-    ).outerjoin(User, Event.id_petugas == User.id_user).all()
+    daftar_event = Event.query.options(joinedload(Event.user)).all()
 
     list_petugas = User.query.filter_by(role='petugas').all() 
 
@@ -472,12 +476,80 @@ def delete_fasilitas(id_fasilitas):
     flash('Fasilitas berhasil dihapus!', 'success')
     return redirect(url_for('web.fasilitas'))
 
-@web.route('/users')
+@web.route('/users', methods=['GET', 'POST'])
 def users():
     if session.get('role') != 'admin': 
         flash('Hanya Admin yang boleh mengakses halaman ini!', 'danger')
         return redirect(url_for('web.dashboard'))
-    return render_template('users.html', data=[])
+
+    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
+    if request.method == 'POST':
+        mode = request.form.get('form_mode')
+        
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
+        nama_lengkap = request.form.get('nama_lengkap')
+
+        if mode == 'add':
+            # Cek username unik
+            if User.query.filter_by(username=username).first():
+                flash('Username sudah digunakan!', 'danger')
+                return redirect(url_for('web.users'))
+            
+            hashed_password = generate_password_hash(password)
+            new_user = User(
+                username=username,
+                password=hashed_password,
+                role=role,
+                nama_lengkap=nama_lengkap
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('User baru berhasil ditambahkan!', 'success')
+
+        elif mode == 'update':
+            id_user = request.form.get('id_user')
+            user = User.query.get(id_user)
+            if user:
+                # Cek username unik (kecuali dirinya sendiri)
+                existing = User.query.filter_by(username=username).first()
+                if existing and existing.id_user != int(id_user):
+                    flash('Username sudah digunakan!', 'danger')
+                    return redirect(url_for('web.users'))
+                
+                user.username = username
+                if password:  # Hanya update password jika diisi
+                    user.password = generate_password_hash(password)
+                user.role = role
+                user.nama_lengkap = nama_lengkap
+                db.session.commit()
+                flash('Data user berhasil diperbarui!', 'success')
+        
+        return redirect(url_for('web.users'))
+
+    # --- 2. LOGIKA TAMPIL DATA & EDIT (GET) ---
+    list_users = User.query.all()
+
+    # Cek mode Edit
+    edit_id = request.args.get('edit')
+    user_to_edit = None
+    if edit_id:
+        user_to_edit = User.query.get(edit_id)
+
+    return render_template('users.html', users=list_users, user_to_edit=user_to_edit)
+
+@web.route('/users/delete/<int:id_user>')
+def delete_user(id_user):
+    if session.get('role') != 'admin': 
+        flash('Hanya Admin yang boleh mengakses halaman ini!', 'danger')
+        return redirect(url_for('web.dashboard'))
+    
+    user = User.query.get_or_404(id_user)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User berhasil dihapus!', 'success')
+    return redirect(url_for('web.users'))
 
 @web.route('/profile')
 def profile():

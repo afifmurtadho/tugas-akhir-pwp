@@ -32,7 +32,7 @@
                 <div class="col-md-4">
                     <label class="form-label">Tanggal Event</label>
                     <input type="date" name="tanggal_event" class="form-control"
-                           value="{{ event_to_edit.tanggal_event if event_to_edit else '' }}">
+                           value="{{ event_to_edit.tanggal_event.strftime('%Y-%m-%d') if event_to_edit and event_to_edit.tanggal_event else '' }}">
                 </div>
                 
                 <div class="col-md-4">
@@ -47,9 +47,9 @@
                     <select name="id_petugas" class="form-select">
                         <option value="">-- Pilih Petugas --</option>
                         {% for p in petugas %}
-                        <option value="{{ p.id_petugas }}"
-                            {% if event_to_edit and event_to_edit.id_petugas == p.id_petugas %} selected {% endif %}>
-                            {{ p.nama_petugas }}
+                        <option value="{{ p.id_user }}"
+                            {% if event_to_edit and event_to_edit.id_user == p.id_user %} selected {% endif %}>
+                            {{ p.nama_lengkap }}
                         </option>
                         {% endfor %}
                     </select>
@@ -101,9 +101,9 @@
                         <td class="text-center">{{ loop.index }}</td>
                         <td>{{ e.nama_event }}</td>
                         <td>{{ e.jenis_event or '-' }}</td>
-                        <td class="text-center">{{ e.tanggal_event or '-' }}</td>
+                        <td class="text-center">{{ e.tanggal_event.strftime('%d/%m/%Y') if e.tanggal_event else '-' }}</td>
                         <td>{{ e.lokasi_event or '-' }}</td>
-                        <td>{{ e.nama_petugas or '-' }}</td>
+                        <td>{{ e.user.nama_lengkap or '-' }}</td>
                         <td class="text-center">
                             <a href="{{ url_for('web.event', edit=e.id_event) }}" class="btn btn-warning btn-sm">
                                 Edit

@@ -10,7 +10,7 @@ api = Blueprint('api', __name__, url_prefix='/api')
 # ---------- AUTH ----------
 @api.route('/login', methods=['POST'])
 def login():
-    return login_api(request)
+    return login_api()
 
 @api.route('/logout', methods=['POST'])
 @login_required

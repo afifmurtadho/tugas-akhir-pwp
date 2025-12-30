@@ -13,3 +13,14 @@ class Inventaris(db.Model):
     satuan = db.Column(db.String(50))
     kondisi = db.Column(db.String(50))
     tanggal_update = db.Column(db.Date, default=date.today)
+
+    def to_dict(self):
+        return {
+            'id_inventaris': self.id_inventaris,
+            'nama_barang': self.nama_barang,
+            'kategori': self.kategori,
+            'jumlah': self.jumlah,
+            'satuan': self.satuan,
+            'kondisi': self.kondisi,
+            'tanggal_update': self.tanggal_update.isoformat() if self.tanggal_update else None
+        }

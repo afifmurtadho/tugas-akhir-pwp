@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.mysql import INTEGER
 from app.extensions import db
 
 class Hewan(db.Model):
@@ -20,7 +19,23 @@ class Hewan(db.Model):
     )
 
     id_user = db.Column(
-        INTEGER(unsigned=True),
+        db.Integer,
         db.ForeignKey('users.id_user'),
         nullable=True
     )
+
+    kandang = db.relationship('Kandang', backref='hewans')
+    user = db.relationship('User', backref='hewans')
+
+    def to_dict(self):
+        return {
+            'id_hewan': self.id_hewan,
+            'nama_hewan': self.nama_hewan,
+            'spesies': self.spesies,
+            'asal': self.asal,
+            'status_konservasi': self.status_konservasi,
+            'tanggal_masuk': self.tanggal_masuk.isoformat() if self.tanggal_masuk else None,
+            'jenis_pakan': self.jenis_pakan,
+            'id_kandang': self.id_kandang,
+            'id_user': self.id_user
+        }

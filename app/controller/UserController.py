@@ -18,14 +18,16 @@ def get_user(id):
 def create_user(request):
     username = request.form.get("username")
     password = request.form.get("password")
+    nama_lengkap = request.form.get("nama_lengkap")
     role = request.form.get("role", "user")
 
-    if not username or not password:
+    if not username or not password or not nama_lengkap:
         return error("Data tidak lengkap")
 
     user = User(
         username=username,
         password=generate_password_hash(password),
+        nama_lengkap=nama_lengkap,
         role=role
     )
     db.session.add(user)
@@ -40,6 +42,7 @@ def update_user(request, id):
         return error("User tidak ditemukan", 404)
 
     user.username = request.form.get("username", user.username)
+    user.nama_lengkap = request.form.get("nama_lengkap", user.nama_lengkap)
     user.role = request.form.get("role", user.role)
 
     db.session.commit()
