@@ -1,0 +1,1 @@
+print ("A King never gives up")
