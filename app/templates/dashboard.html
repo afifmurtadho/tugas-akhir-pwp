@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3 class="fw-bold mb-4">Dashboard</h3>
+
+<div class="row g-4">
+    <!-- Card: Total Hewan -->
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4">{{ total_hewan }}</h1>
+                <p class="card-text fs-5">Total Hewan</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Total Kandang -->
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4">{{ total_kandang }}</h1>
+                <p class="card-text fs-5">Total Kandang</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Total Petugas -->
+    <div class="col-md-4">
+        <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4 text-dark">{{ total_petugas }}</h1>
+                <p class="card-text fs-5 text-dark">Total Petugas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Event Mendatang -->
+    <div class="col-md-4">
+        <div class="card text-white bg-info shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4">{{ total_event }}</h1>
+                <p class="card-text fs-5">Event Mendatang</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Total Inventaris -->
+    <div class="col-md-4">
+        <div class="card text-white bg-secondary shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4">{{ total_inventaris }}</h1>
+                <p class="card-text fs-5">Total Inventaris</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Total Fasilitas -->
+    <div class="col-md-4">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="card-title fw-bold display-4">{{ total_fasilitas }}</h1>
+                <p class="card-text fs-5">Total Fasilitas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Total User</h6>
+                <h2 class="fw-bold text-success">{{ total_user }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Admin</h6>
+                <h2 class="fw-bold text-danger">{{ total_admin }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Petugas</h6>
+                <h2 class="fw-bold text-primary">{{ total_petugas }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Info Card -->
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-body">
+        <h5 class="card-title fw-bold">Informasi Sistem</h5>
+        <p class="card-text">
+            Selamat datang di Dashboard Zoo Management System. 
+            Gunakan menu navigasi di sidebar untuk mengelola data zoo Anda.
+        </p>
+    </div>
+</div>
+
+{% endblock %}
