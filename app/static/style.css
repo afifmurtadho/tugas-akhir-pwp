@@ -1,12 +1,11 @@
 body {
-    /* Mencegah scrolling horizontal */
     overflow-x: hidden;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .sidebar {
     width: 270px;
-    height: 100vh;
+    height: 90vh;
 
     position: fixed;
     top: 0;
@@ -17,7 +16,6 @@ body {
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     z-index: 1000;
 }
-
 
 .sidebar .nav-link {
     border-radius: 8px;
@@ -37,15 +35,13 @@ body {
     font-weight: 600;
 }
 
-/* Area konten utama */
 .content-area {
-    margin-left: 270px;   /* ⬅️ SELEBAR SIDEBAR */
+    margin-left: 270px;
     min-height: 100vh;
     background-color: #f8f9fa;
 }
 
 
-/* Card styling */
 .card {
     border-radius: 12px;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -56,7 +52,6 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Button styling */
 .btn {
     border-radius: 8px;
     font-weight: 500;
@@ -68,9 +63,8 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-/* Table styling */
 .table {
-    border-radius: 8px;
+    border-radius: 5px;
     overflow: hidden;
 }
 
@@ -81,21 +75,18 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Badge styling */
 .badge {
     padding: 6px 12px;
     font-weight: 500;
     border-radius: 6px;
 }
 
-/* Alert styling */
 .alert {
     border-radius: 10px;
     border: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Form styling */
 .form-control, .form-select {
     border-radius: 8px;
     border: 1px solid #dee2e6;
@@ -107,13 +98,11 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
 }
 
-/* Dropdown styling */
 .dropdown-menu {
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
-/* Navbar brand styling */
 .navbar-brand {
     text-decoration: none !important;
     transition: transform 0.2s;
@@ -123,7 +112,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
@@ -135,7 +123,6 @@ body {
     }
 }
 
-/* Animation for page load */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -151,7 +138,6 @@ body {
     animation: fadeIn 0.3s ease-in;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -169,10 +155,6 @@ body {
     background: #157347;
 }
 
-/* ===============================
-   FLOATING SIDEBAR
-================================ */
-
 .sidebar.floating-sidebar {
     width: 215px;
     min-height: calc(100vh - 40px);
@@ -188,13 +170,11 @@ body {
     z-index: 1000;
 }
 
-/* Sidebar brand/logo */
 .sidebar .navbar-brand img {
     max-width: 70px;
     height: auto;
 }
 
-/* Nav link styling */
 .sidebar .nav-link {
     border-radius: 10px;
     margin-bottom: 4px;
@@ -211,18 +191,13 @@ body {
     color: #198754 !important;
 }
 
-/* Section title */
 .sidebar small {
     letter-spacing: 1px;
     font-size: 0.7rem;
 }
 
-/* ===============================
-   MAIN CONTENT AREA
-================================ */
-
 .content-area {
-    margin-left: 290px; /* sidebar width + gap */
+    margin-left: 290px;
     width: 100%;
     min-height: 100vh;
 }

@@ -1,34 +1,10 @@
 from flask import request, jsonify, redirect, url_for, session
 from app.model.user import User
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from app.response import success, error
+from app.extensions import db
 
-"""
-def login():
-    data = request.get_json()
 
-    if not data:
-        return jsonify({'message': 'Request harus JSON'}), 400
-
-    user = User.query.filter_by(username=data.get('username')).first()
-
-    if not user:
-        return jsonify({'message': 'User tidak ditemukan'}), 404
-
-    if not check_password_hash(user.password, data.get('password')):
-        return jsonify({'message': 'Password salah'}), 401
-
-    return jsonify({
-        'message': 'Login berhasil',
-        'id_user': user.id_user,
-        'username': user.username,
-        'role': user.role
-    }), 200
-"""
-
-# =========================
-# LOGIN UNTUK WEB (HTML)
-# =========================
 def login_web():
     username = request.form.get('username')
     password = request.form.get('password')
@@ -59,7 +35,9 @@ def login_api():
     if not check_password_hash(user.password, data.get('password')):
         return error("Password salah", 401)
 
-    # token sederhana (cukup untuk TA)
+    session['user_id'] = user.id_user
+    session['role'] = user.role
+
     token = f"{user.id_user}:{user.role}"
 
     return success("Login berhasil", {
@@ -68,6 +46,40 @@ def login_api():
     })
 
 
-def logout_api():
-    return success("Logout berhasil")
+def register_api():
+    data = request.json
 
+    if not data:
+        return jsonify({"message": "Request harus JSON"}), 400
+
+    username = data.get("username")
+    password = data.get("password")
+    nama_lengkap = data.get("nama_lengkap")
+    role = data.get("role", "user")
+
+    if not username or not password or not nama_lengkap:
+        return jsonify({"message": "Data tidak lengkap"}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({"message": "Username sudah terdaftar"}), 409
+
+    user = User(
+        username=username,
+        password=generate_password_hash(password),
+        nama_lengkap=nama_lengkap,
+        role=role
+    )
+
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Register berhasil",
+        "username": username,
+        "role": role
+    }), 201
+
+
+def logout_api():
+    session.clear()
+    return success("Logout berhasil")

@@ -5,7 +5,7 @@
 <div class="card shadow-sm border-0 mb-4 collapse {{ 'show' if user_to_edit else '' }}" id="formUser">
     <div class="card-body p-4">
         
-        <h3 class="fw-bold mb-4">{{ '✏️ Edit User' if user_to_edit else '➕ Tambah User' }}</h3>
+        <h3 class="fw-bold mb-4">{{ 'Edit User' if user_to_edit else 'Tambah User' }}</h3>
 
         <form method="POST" action="{{ url_for('web.users') }}">
             <input type="hidden" name="form_mode" value="{{ 'update' if user_to_edit else 'add' }}">
@@ -17,7 +17,7 @@
             <div class="row g-3">
                 <!-- Informasi Akun -->
                 <div class="col-12">
-                    <h5 class="text-success border-bottom pb-2">🔐 Informasi Akun</h5>
+                    <h5 class="text-success border-bottom pb-2">Informasi Akun</h5>
                 </div>
                 
                 <div class="col-md-4">
@@ -47,7 +47,7 @@
                 
                 <!-- Informasi Personal -->
                 <div class="col-12 mt-4">
-                    <h5 class="text-success border-bottom pb-2">👤 Informasi Personal (Opsional)</h5>
+                    <h5 class="text-success border-bottom pb-2">Informasi Personal (Opsional)</h5>
                 </div>
                 
                 <div class="col-md-6">
@@ -83,7 +83,7 @@
 
 <!-- Alert Warning -->
 <div class="alert alert-warning" role="alert">
-    <strong>⚠️ Peringatan:</strong> Halaman ini hanya bisa diakses oleh <strong>Admin</strong>. 
+    <strong>⚠️ </strong> Halaman ini hanya bisa diakses oleh <strong>Admin</strong>. 
     Gunakan dengan bijak untuk mengelola akses pengguna sistem.
 </div>
 

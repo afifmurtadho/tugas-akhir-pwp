@@ -1,17 +1,16 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from app.middleware.auth import login_required
 from app.controller.DashboardController import dashboard_data 
-from app.controller.AuthController import login_web
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
+from sqlalchemy.orm import joinedload
+from datetime import datetime
+# ===
 from app.model.user import User
 from app.model.hewan import Hewan 
 from app.model.kandang import Kandang 
 from app.model.inventaris import Inventaris
 from app.model.event import Event
-from datetime import datetime
 from app.model.fasilitas import Fasilitas
-from sqlalchemy.orm import joinedload
 
 web = Blueprint('web', __name__)
 
@@ -26,30 +25,27 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id_user # Sesuai kolom id_user di database
+            session['user_id'] = user.id_user
             session['username'] = user.username
-            session['nama'] = user.nama_lengkap # Sesuai kolom nama_lengkap di database
+            session['nama'] = user.nama_lengkap
             session['role'] = user.role
-            return redirect(url_for('web.dashboard'))
+            return redirect(url_for('web.home'))
         
         flash('Username atau Password salah!', 'danger')
     return render_template('login.html')
 
-# Route Register
+
 @web.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         nama_lengkap = request.form.get('nama_lengkap')
-        role = request.form.get('role')
 
-        # Validasi input
-        if not username or not password or not nama_lengkap or not role:
+        if not username or not password or not nama_lengkap:
             flash('Semua field harus diisi!', 'danger')
             return redirect(url_for('web.register'))
 
-        # Cek duplikasi
         if User.query.filter_by(username=username).first():
             flash('Username sudah ada!', 'warning')
             return redirect(url_for('web.register'))
@@ -59,7 +55,7 @@ def register():
                 username=username,
                 password=generate_password_hash(password),
                 nama_lengkap=nama_lengkap,
-                role=role
+                role='petugas'
             )
             db.session.add(new_user)
             db.session.commit()
@@ -72,6 +68,9 @@ def register():
     return render_template('register.html')
 
 
+# ==============================
+# ROUTE DASHBOARD & HOME
+# ==============================
 @web.route('/dashboard')
 def dashboard():
     if 'user_id' not in session: return redirect(url_for('web.login'))
@@ -84,17 +83,18 @@ def home():
     if 'user_id' not in session: return redirect(url_for('web.login'))
     return render_template('home.html')
 
-# Route Hewan
+
+# ==============================
+# ROUTE HEWAN
+# ==============================
 @web.route('/hewan', methods=['GET', 'POST'])
 def hewan():
     if 'user_id' not in session:
         return redirect(url_for('web.login'))
 
-    # --- LOGIKA POST (TAMBAH & UPDATE) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
-        # Ambil data dari form
         nama = request.form.get('nama_hewan')
         spesies = request.form.get('spesies')
         asal = request.form.get('asal')
@@ -133,13 +133,11 @@ def hewan():
 
     daftar_hewan = Hewan.query.options(joinedload(Hewan.kandang), joinedload(Hewan.user)).all()
 
-    # 2. Cek apakah sedang mode Edit (ada parameter ?edit=ID di URL)
     edit_id = request.args.get('edit')
     hewan_to_edit = None
     if edit_id:
         hewan_to_edit = Hewan.query.get(edit_id)
 
-    # 3. Ambil data untuk dropdown Kandang dan Petugas
     list_kandang = Kandang.query.all()
     list_users = User.query.all()
 
@@ -149,7 +147,6 @@ def hewan():
                            users=list_users,
                            hewan_to_edit=hewan_to_edit)
 
-# Route Delete Hewan
 @web.route('/hewan/delete/<int:id_hewan>')
 def delete_hewan(id_hewan):
     if 'user_id' not in session: return redirect(url_for('web.login'))
@@ -160,19 +157,18 @@ def delete_hewan(id_hewan):
     flash('Data hewan berhasil dihapus!', 'success')
     return redirect(url_for('web.hewan'))
 
+
 # ==============================
-# Route Kandang
+# ROUTE KANDANG
 # ==============================
 @web.route('/kandang', methods=['GET', 'POST'])
 def kandang():
     if 'user_id' not in session:
         return redirect(url_for('web.login'))
 
-    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
-        # Ambil data dari form kandang
         jenis_habitat = request.form.get('jenis_habitat')
         kapasitas = request.form.get('kapasitas')
         suhu_ideal = request.form.get('suhu_ideal')
@@ -205,20 +201,17 @@ def kandang():
         
         return redirect(url_for('web.kandang'))
 
-    # GET KANDANG
     daftar_kandang = db.session.query(
         Kandang.id_kandang, Kandang.jenis_habitat, Kandang.kapasitas, 
         Kandang.suhu_ideal, Kandang.lokasi_zona,
         User.nama_lengkap, User.username
     ).outerjoin(User, Kandang.id_user == User.id_user).all()
 
-    # EDIT KANDANG
     edit_id = request.args.get('edit')
     kandang_to_edit = None
     if edit_id:
         kandang_to_edit = Kandang.query.get(edit_id)
 
-    # Ambil daftar user untuk dropdown petugas
     list_users = User.query.all()
 
     return render_template('kandang.html', 
@@ -226,7 +219,6 @@ def kandang():
                            users=list_users, 
                            kandang_to_edit=kandang_to_edit)
 
-# DELETE KANDANG
 @web.route('/kandang/delete/<int:id_kandang>')
 def delete_kandang(id_kandang):
     if 'user_id' not in session:
@@ -244,7 +236,7 @@ def delete_kandang(id_kandang):
     return redirect(url_for('web.kandang'))
 
 # ==============================
-# ROUTE INVENTARIS
+# ROUTE INVENTARIS 
 # ==============================
 @web.route('/inventaris')
 @web.route('/inventaris', methods=['GET', 'POST'])
@@ -252,11 +244,9 @@ def inventaris():
     if 'user_id' not in session:
         return redirect(url_for('web.login'))
 
-    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
-        # Ambil data dari form
         nama_barang = request.form.get('nama_barang')
         kategori = request.form.get('kategori')
         jumlah = request.form.get('jumlah')
@@ -292,12 +282,8 @@ def inventaris():
         
         return redirect(url_for('web.inventaris'))
 
-    # --- 2. LOGIKA TAMPIL DATA & EDIT (GET) ---
-    
-    # Ambil semua data inventaris
     daftar_inventaris = Inventaris.query.all()
 
-    # Cek jika sedang mode Edit
     edit_id = request.args.get('edit')
     inventaris_to_edit = None
     if edit_id:
@@ -318,16 +304,15 @@ def delete_inventaris(id_inventaris):
     flash('Barang berhasil dihapus dari inventaris!', 'success')
     return redirect(url_for('web.inventaris'))
 
-# ===============
-# ROUTE EVENT
-# ===============
 
+# ==============================
+# EVENT
+# ==============================
 @web.route('/event', methods=['GET', 'POST'])
 def event():
     if 'user_id' not in session:
         return redirect(url_for('web.login'))
 
-    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
@@ -336,7 +321,7 @@ def event():
         tanggal_event_str = request.form.get('tanggal_event')
         tanggal_event = datetime.strptime(tanggal_event_str, '%Y-%m-%d').date() if tanggal_event_str else None
         lokasi_event = request.form.get('lokasi_event')
-        id_user = request.form.get('id_petugas')
+        id_user = request.form.get('id_user')
 
         if mode == 'add':
             new_event = Event(
@@ -364,15 +349,10 @@ def event():
         
         return redirect(url_for('web.event'))
 
-    # --- 2. LOGIKA TAMPIL DATA & EDIT (GET) ---
-    
-    # Ambil data event dengan join ke User untuk mendapatkan nama penanggung jawab
-    # Kita gunakan alias nama_petugas agar sesuai dengan {{ e.nama_petugas }} di HTML
     daftar_event = Event.query.options(joinedload(Event.user)).all()
 
     list_petugas = User.query.filter_by(role='petugas').all() 
 
-    # Cek mode Edit
     edit_id = request.args.get('edit')
     event_to_edit = None
     if edit_id:
@@ -394,16 +374,15 @@ def delete_event(id_event):
     flash('Event berhasil dihapus!', 'success')
     return redirect(url_for('web.event'))
 
-# =====================
-# ROUTE FASILITAS
-# =====================
 
+# ==============================
+# ROUTE FASILITAS
+# ==============================
 @web.route('/fasilitas', methods=['GET', 'POST'])
 def fasilitas():
     if 'user_id' not in session:
         return redirect(url_for('web.login'))
 
-    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
@@ -413,7 +392,6 @@ def fasilitas():
         jadwal_perawatan = request.form.get('jadwal_perawatan')
         id_user = request.form.get('id_user')
 
-        # Jika jadwal_perawatan kosong string, ubah jadi None agar tidak error di DB date
         if not jadwal_perawatan:
             jadwal_perawatan = None
 
@@ -443,19 +421,14 @@ def fasilitas():
         
         return redirect(url_for('web.fasilitas'))
 
-    # --- 2. LOGIKA TAMPIL DATA & EDIT (GET) ---
-    
-    # Query join untuk mendapatkan nama petugas penanggung jawab
     daftar_fasilitas = db.session.query(
         Fasilitas.id_fasilitas, Fasilitas.nama_fasilitas, Fasilitas.lokasi,
         Fasilitas.kondisi, Fasilitas.jadwal_perawatan,
         User.nama_lengkap, User.username
     ).outerjoin(User, Fasilitas.id_user == User.id_user).all()
 
-    # Ambil daftar semua user untuk dropdown penanggung jawab
     list_users = User.query.all()
 
-    # Cek mode Edit
     edit_id = request.args.get('edit')
     fasilitas_to_edit = None
     if edit_id:
@@ -477,13 +450,16 @@ def delete_fasilitas(id_fasilitas):
     flash('Fasilitas berhasil dihapus!', 'success')
     return redirect(url_for('web.fasilitas'))
 
+
+# ==============================
+# ROUTE USERS
+# ==============================
 @web.route('/users', methods=['GET', 'POST'])
 def users():
     if session.get('role') != 'admin': 
         flash('Hanya Admin yang boleh mengakses halaman ini!', 'danger')
         return redirect(url_for('web.dashboard'))
 
-    # --- 1. LOGIKA SIMPAN & UPDATE (POST) ---
     if request.method == 'POST':
         mode = request.form.get('form_mode')
         
@@ -493,7 +469,6 @@ def users():
         nama_lengkap = request.form.get('nama_lengkap')
 
         if mode == 'add':
-            # Cek username unik
             if User.query.filter_by(username=username).first():
                 flash('Username sudah digunakan!', 'danger')
                 return redirect(url_for('web.users'))
@@ -513,14 +488,13 @@ def users():
             id_user = request.form.get('id_user')
             user = User.query.get(id_user)
             if user:
-                # Cek username unik (kecuali dirinya sendiri)
                 existing = User.query.filter_by(username=username).first()
                 if existing and existing.id_user != int(id_user):
                     flash('Username sudah digunakan!', 'danger')
                     return redirect(url_for('web.users'))
                 
                 user.username = username
-                if password:  # Hanya update password jika diisi
+                if password:  
                     user.password = generate_password_hash(password)
                 user.role = role
                 user.nama_lengkap = nama_lengkap
@@ -529,10 +503,8 @@ def users():
         
         return redirect(url_for('web.users'))
 
-    # --- 2. LOGIKA TAMPIL DATA & EDIT (GET) ---
     list_users = User.query.all()
 
-    # Cek mode Edit
     edit_id = request.args.get('edit')
     user_to_edit = None
     if edit_id:
@@ -552,11 +524,23 @@ def delete_user(id_user):
     flash('User berhasil dihapus!', 'success')
     return redirect(url_for('web.users'))
 
+
+# ==============================
+# ROUTE PROFILE
+# ==============================
 @web.route('/profile')
 def profile():
     if 'user_id' not in session: return redirect(url_for('web.login'))
-    return render_template('profile.html')
+    user = User.query.get(session.get('user_id'))
+    if not user:
+        flash('user tidak ditemukan!', 'danger')
+        return redirect(url_for('web.logout'))
+    return render_template('profile.html', user=user)
 
+
+# ==============================
+# ROUTE LOGOUT
+# ==============================
 @web.route('/logout')
 def logout():
     session.clear()

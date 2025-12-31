@@ -44,15 +44,15 @@
                 
                 <div class="col-md-4">
                     <label class="form-label">Penanggung Jawab</label>
-                    <select name="id_petugas" class="form-select">
-                        <option value="">-- Pilih Petugas --</option>
-                        {% for p in petugas %}
-                        <option value="{{ p.id_user }}"
-                            {% if event_to_edit and event_to_edit.id_user == p.id_user %} selected {% endif %}>
-                            {{ p.nama_lengkap }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                        <select name="id_user" class="form-select">
+                            <option value="">-- Pilih Petugas --</option>
+                            {% for u in petugas %}
+                            <option value="{{ u.id_user }}"
+                                {% if event_to_edit and event_to_edit.id_user == u.id_user %} selected {% endif %}>
+                                {{ u.nama_lengkap or u.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
                 </div>
                 
                 <div class="col-12">

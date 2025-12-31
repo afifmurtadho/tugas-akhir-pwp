@@ -1,5 +1,5 @@
-from flask import request
-from werkzeug.security import generate_password_hash
+from flask import request, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.model.user import User
 from app.extensions import db
 from app.response import success, error
@@ -42,7 +42,6 @@ def create_user():
     return success("User berhasil dibuat")
 
 
-
 def update_user(id_user):
     user = User.query.get(id_user)
     if not user:
@@ -58,7 +57,6 @@ def update_user(id_user):
 
     db.session.commit()
     return success("User berhasil diupdate")
-
 
 
 def delete_user(id):

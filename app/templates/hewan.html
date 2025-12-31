@@ -36,12 +36,12 @@
                 <div class="col-md-4">
                     <label class="form-label">Status Konservasi</label>
                     <select name="status_konservasi" class="form-select" required>
-                        <option value="Least Concern" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Least Concern' %}selected{% endif %}>Least Concern</option>
-                        <option value="Near Threatened" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Near Threatened' %}selected{% endif %}>Near Threatened</option>
-                        <option value="Vulnerable" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Vulnerable' %}selected{% endif %}>Vulnerable</option>
-                        <option value="Endangered" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Endangered' %}selected{% endif %}>Endangered</option>
-                        <option value="Critically Endangered" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Critically Endangered' %}selected{% endif %}>Critically Endangered</option>
-                        <option value="Extinct in Wild" {% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Extinct in Wild' %}selected{% endif %}>Extinct in Wild</option>
+                        <option value="Risiko Rendah"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Risiko Rendah' %}selected{% endif %}>Risiko Rendah</option>
+                        <option value="Hampir Terancam"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Hampir Terancam' %}selected{% endif %}>Hampir Terancam</option>
+                        <option value="Rentan"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Rentan' %}selected{% endif %}>Rentan</option>
+                        <option value="Terancam Punah"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Terancam Punah' %}selected{% endif %}>Terancam Punah</option>
+                        <option value="Kritis"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Kritis' %}selected{% endif %}>Kritis</option>
+                        <option value="Punah di Alam Liar"{% if hewan_to_edit and hewan_to_edit.status_konservasi == 'Punah di Alam Liar' %}selected{% endif %}>Punah di Alam Liar</option>
                     </select>
                 </div>
                 

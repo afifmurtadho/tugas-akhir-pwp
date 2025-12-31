@@ -5,7 +5,7 @@
 <div class="card shadow-sm border-0 mb-4 collapse {{ 'show' if fasilitas_to_edit else '' }}" id="formFasilitas">
     <div class="card-body p-4">
         
-        <h3 class="fw-bold mb-4">{{ '✏️ Edit Fasilitas' if fasilitas_to_edit else '➕ Tambah Fasilitas' }}</h3>
+        <h3 class="fw-bold mb-4">{{ 'Edit Fasilitas' if fasilitas_to_edit else 'Tambah Fasilitas' }}</h3>
 
         <form method="POST" action="{{ url_for('web.fasilitas') }}">
             <input type="hidden" name="form_mode" value="{{ 'update' if fasilitas_to_edit else 'add' }}">
@@ -60,10 +60,10 @@
                 
                 <div class="col-12">
                     {% if fasilitas_to_edit %}
-                        <button type="submit" class="btn btn-success">💾 Update</button>
-                        <a href="{{ url_for('web.fasilitas') }}" class="btn btn-secondary">❌ Batal</a>
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a href="{{ url_for('web.fasilitas') }}" class="btn btn-secondary">Batal</a>
                     {% else %}
-                        <button type="submit" class="btn btn-primary">💾 Simpan</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     {% endif %}
                 </div>
             </div>
@@ -73,11 +73,11 @@
 
 <!-- Header & Button Tambah -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold mb-0">🏢 Daftar Fasilitas</h3>
+    <h3 class="fw-bold mb-0">Daftar Fasilitas</h3>
     
     {% if not fasilitas_to_edit %}
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formFasilitas">
-        ➕ Tambah Fasilitas
+        Tambah Fasilitas
     </button>
     {% endif %}
 </div>
