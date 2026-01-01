@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Form Tambah/Edit Kandang -->
+<div class="card shadow-sm border-0 mb-4 collapse {{ 'show' if kandang_to_edit else '' }}" id="formKandang">
+    <div class="card-body p-4">
+        
+        <h3 class="fw-bold mb-4">{{ 'Edit Kandang' if kandang_to_edit else 'Tambah Kandang' }}</h3>
+
+        <form method="POST" action="{{ url_for('web.kandang') }}">
+            <input type="hidden" name="form_mode" value="{{ 'update' if kandang_to_edit else 'add' }}">
+            
+            {% if kandang_to_edit %}
+            <input type="hidden" name="id_kandang" value="{{ kandang_to_edit.id_kandang }}">
+            {% endif %}
+            
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Jenis Habitat</label>
+                    <input type="text" name="jenis_habitat" class="form-control" required
+                           value="{{ kandang_to_edit.jenis_habitat if kandang_to_edit else '' }}"
+                           placeholder="Contoh: Savana, Hutan Tropis">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Kapasitas</label>
+                    <input type="number" name="kapasitas" class="form-control" required
+                           value="{{ kandang_to_edit.kapasitas if kandang_to_edit else '' }}"
+                           placeholder="Jumlah hewan">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Suhu Ideal</label>
+                    <input type="text" name="suhu_ideal" class="form-control"
+                           value="{{ kandang_to_edit.suhu_ideal if kandang_to_edit else '' }}"
+                           placeholder="Contoh: 25-30°C">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Lokasi Zona</label>
+                    <input type="text" name="lokasi_zona" class="form-control"
+                           value="{{ kandang_to_edit.lokasi_zona if kandang_to_edit else '' }}"
+                           placeholder="Contoh: Zona A, Zona Utara">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Penanggung Jawab</label>
+                    <select name="id_user" class="form-select">
+                        <option value="">-- Pilih Petugas --</option>
+                        {% for u in users %}
+                        <option value="{{ u.id_user }}"
+                            {% if kandang_to_edit and kandang_to_edit.id_user == u.id_user %} selected {% endif %}>
+                            {{ u.nama_lengkap or u.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    {% if kandang_to_edit %}
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a href="{{ url_for('web.kandang') }}" class="btn btn-secondary">Batal</a>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Header & Button Tambah -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Daftar Kandang</h3>
+    
+    {% if not kandang_to_edit %}
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formKandang">
+        Tambah Kandang
+    </button>
+    {% endif %}
+</div>
+
+<!-- Tabel Daftar Kandang -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th>No</th>
+                        <th>ID</th>
+                        <th>Jenis Habitat</th>
+                        <th>Kapasitas</th>
+                        <th>Suhu Ideal</th>
+                        <th>Lokasi Zona</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k in kandang %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td class="text-center">{{ k.id_kandang }}</td>
+                        <td>{{ k.jenis_habitat }}</td>
+                        <td class="text-center">{{ k.kapasitas }} hewan</td>
+                        <td class="text-center">{{ k.suhu_ideal or '-' }}</td>
+                        <td>{{ k.lokasi_zona or '-' }}</td>
+                        <td>{{ k.nama_lengkap or k.username or '-' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('web.kandang', edit=k.id_kandang) }}" class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+                            <a href="{{ url_for('web.delete_kandang', id_kandang=k.id_kandang) }}" 
+                               onclick="return confirm('Hapus data kandang ini?')" 
+                               class="btn btn-danger btn-sm">
+                                Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">Belum ada data kandang</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

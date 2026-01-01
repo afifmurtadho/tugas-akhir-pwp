@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Form Tambah/Edit Event -->
+<div class="card shadow-sm border-0 mb-4 collapse {{ 'show' if event_to_edit else '' }}" id="formEvent">
+    <div class="card-body p-4">
+        
+        <h3 class="fw-bold mb-4">{{ 'Edit Event' if event_to_edit else 'Tambah Event' }}</h3>
+
+        <form method="POST" action="{{ url_for('web.event') }}">
+            <input type="hidden" name="form_mode" value="{{ 'update' if event_to_edit else 'add' }}">
+            
+            {% if event_to_edit %}
+            <input type="hidden" name="id_event" value="{{ event_to_edit.id_event }}">
+            {% endif %}
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nama Event</label>
+                    <input type="text" name="nama_event" class="form-control" required
+                           value="{{ event_to_edit.nama_event if event_to_edit else '' }}"
+                           placeholder="Contoh: Feeding Time, Zoo Night">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Jenis Event</label>
+                    <input type="text" name="jenis_event" class="form-control"
+                           value="{{ event_to_edit.jenis_event if event_to_edit else '' }}"
+                           placeholder="Contoh: Edukasi, Hiburan">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Tanggal Event</label>
+                    <input type="date" name="tanggal_event" class="form-control"
+                           value="{{ event_to_edit.tanggal_event.strftime('%Y-%m-%d') if event_to_edit and event_to_edit.tanggal_event else '' }}">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Lokasi Event</label>
+                    <input type="text" name="lokasi_event" class="form-control"
+                           value="{{ event_to_edit.lokasi_event if event_to_edit else '' }}"
+                           placeholder="Contoh: Area Reptil, Amphitheater">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label">Penanggung Jawab</label>
+                        <select name="id_user" class="form-select">
+                            <option value="">-- Pilih Petugas --</option>
+                            {% for u in petugas %}
+                            <option value="{{ u.id_user }}"
+                                {% if event_to_edit and event_to_edit.id_user == u.id_user %} selected {% endif %}>
+                                {{ u.nama_lengkap or u.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                </div>
+                
+                <div class="col-12">
+                    {% if event_to_edit %}
+                        <button type="submit" class="btn btn-success">Update</button>
+                        <a href="{{ url_for('web.event') }}" class="btn btn-secondary">Batal</a>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Header & Button Tambah -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Daftar Event</h3>
+    
+    {% if not event_to_edit %}
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#formEvent">
+        Tambah Event
+    </button>
+    {% endif %}
+</div>
+
+<!-- Tabel Daftar Event -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th>No</th>
+                        <th>Nama Event</th>
+                        <th>Jenis Event</th>
+                        <th>Tanggal Event</th>
+                        <th>Lokasi Event</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in event %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td>{{ e.nama_event }}</td>
+                        <td>{{ e.jenis_event or '-' }}</td>
+                        <td class="text-center">{{ e.tanggal_event.strftime('%d/%m/%Y') if e.tanggal_event else '-' }}</td>
+                        <td>{{ e.lokasi_event or '-' }}</td>
+                        <td>{{ e.user.nama_lengkap or '-' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('web.event', edit=e.id_event) }}" class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+                            <a href="{{ url_for('web.delete_event', id_event=e.id_event) }}" 
+                               onclick="return confirm('Hapus data event ini?')" 
+                               class="btn btn-danger btn-sm">
+                                Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Belum ada data event</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
